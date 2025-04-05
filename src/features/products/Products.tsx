@@ -1,16 +1,23 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../app/store';
 import { Product, useGetProductsQuery } from '@/services/apiSlice';
-import { useAppSelector } from '@/app/hooks';
+import { useAppDispatch, useAppSelector } from '@/app/hooks';
 import { selectCount } from '../counter/counterSlice';
 
 const Products: React.FC = () => {
-    const numberOfProducts = useAppSelector(selectCount);
-    // const [numberOfProducts, setNumberOfProducts] = React.useState(count);
-    const dispatch = useDispatch();
+    const globalCount = useAppSelector(selectCount);
+    const dispatch = useAppDispatch();
+    const [numberOfProducts, setNumberOfProducts] = React.useState(globalCount);
     const { data, isError, isLoading, isSuccess } = useGetProductsQuery(numberOfProducts);
 
+    useEffect(() => {
+        setNumberOfProducts(globalCount);
+      }, [globalCount]);
+
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setNumberOfProducts(Number(event.target.value));
+      };
     
     if (isError) {
         return (
@@ -37,7 +44,7 @@ const Products: React.FC = () => {
                 <input
                 type="number"
                 value={numberOfProducts}
-                onChange={(e) => setNumberOfProducts(Number(e.target.value))}
+                onChange={handleChange}
                 />
             </label>
             <div className="products-grid">
